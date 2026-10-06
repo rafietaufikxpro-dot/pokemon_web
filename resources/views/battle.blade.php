@@ -4,264 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokémon Battle Arena</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --ui-bg: rgba(0, 0, 0, 0.75);
-            --dex-red: #e3350d;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Press Start 2P', monospace;
-            background: #222;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #fff;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            position: relative;
-            color: #333;
-        }
-
-        .nav-link {
-            color: white;
-            background: rgba(0,0,0,0.5);
-            padding: 8px 14px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 0.55rem;
-            font-family: 'Press Start 2P', monospace;
-            transition: background 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .nav-link:hover { background: rgba(0,0,0,0.85); }
-
-        /* --- Selection Screen --- */
-        #selection-screen {
-            padding: 40px;
-            text-align: center;
-            background: #f2f2f2;
-            min-height: 600px;
-        }
-
-        .title { color: var(--dex-red); font-size: 2rem; margin-bottom: 20px; text-shadow: 2px 2px 0px #ccc; }
-        
-        .mode-select { margin-bottom: 30px; }
-        .mode-select select {
-            padding: 10px;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 0.8rem;
-            border: 2px solid #333;
-        }
-
-        .players-selection {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 30px;
-            gap: 20px;
-        }
-
-        .player-box {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            border: 4px solid #ccc;
-            flex: 1;
-            box-shadow: 0 4px 0 #ccc;
-        }
-
-        .player-box h3 { margin-bottom: 15px; font-size: 1rem; color: #555; }
-        .player-box input {
-            width: 100%;
-            padding: 10px;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 0.7rem;
-            margin-bottom: 15px;
-            border: 2px solid #ccc;
-            text-align: center;
-        }
-
-        .preview-img { width: 150px; height: 150px; object-fit: contain; background: #f9f9f9; border-radius: 50%; margin-bottom: 15px; border: 2px solid #eee; }
-        .preview-name { font-size: 0.9rem; margin-bottom: 15px; color: #333; }
-
-        .btn-random { background: #30a7d7; color: white; border: none; padding: 10px; cursor: pointer; font-family: 'Press Start 2P', monospace; font-size: 0.6rem; border-radius: 5px; margin-bottom: 5px;}
-        .btn-confirm { background: #4ADE80; color: #333; border: none; padding: 10px; cursor: pointer; font-family: 'Press Start 2P', monospace; font-size: 0.6rem; border-radius: 5px;}
-        
-        .start-btn {
-            background: var(--dex-red);
-            color: white;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-family: 'Press Start 2P', monospace;
-            box-shadow: 0 5px 0 #a02005;
-            transition: transform 0.1s;
-        }
-        .start-btn:active { transform: translateY(5px); box-shadow: 0 0 0; }
-        .start-btn:disabled { background: #ccc; box-shadow: 0 5px 0 #999; cursor: not-allowed; }
-
-        /* --- Battle Arena --- */
-        #battle-arena {
-            display: none;
-            background: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/environments/grass.png') no-repeat center bottom;
-            background-size: cover;
-            background-color: #87CEEB;
-            height: 600px;
-            flex-direction: column;
-            color: #333;
-        }
-
-        .battle-field { flex: 1; position: relative; }
-
-        .enemy { position: absolute; top: 40px; right: 50px; text-align: right; }
-        .enemy img { width: 150px; filter: drop-shadow(0 10px 5px rgba(0,0,0,0.3)); }
-        
-        .hp-box {
-            background: #F8F8F8;
-            border: 4px solid #333;
-            border-radius: 10px;
-            padding: 10px;
-            width: 280px;
-            position: absolute;
-            box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
-        }
-        .hp-box.enemy-hp { top: 40px; left: 30px; }
-        .hp-box.player-hp { bottom: 30px; right: 30px; } 
-
-        .hp-info { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.8rem; }
-        .status-badge { font-size: 0.6rem; padding: 2px 5px; border-radius: 3px; display: none; margin-top: 5px; }
-        .status-psn { background: #A33EA1; color: white; }
-        .status-cnf { background: #F95587; color: white; }
-
-        .hp-bar-bg { background: #555; height: 10px; border-radius: 5px; border: 2px solid #222; overflow: hidden; }
-        .hp-bar-fill { height: 100%; background: #4ADE80; transition: width 0.5s, background-color 0.5s; width: 100%; }
-
-        .player { position: absolute; bottom: 0px; left: 50px; }
-        .player img { width: 180px; filter: drop-shadow(0 10px 5px rgba(0,0,0,0.3)); } 
-
-        .ui-panel {
-            height: 180px;
-            background: var(--ui-bg);
-            border-top: 4px solid #fff;
-            display: flex;
-            padding: 15px;
-            gap: 15px;
-        }
-
-        .dialog-box {
-            flex: 1;
-            border: 4px solid #fff;
-            border-radius: 10px;
-            padding: 15px;
-            font-size: 0.8rem;
-            line-height: 1.8;
-            background: #fff;
-            color: #333;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .log-entry {
-            border-bottom: 1px dotted #ccc;
-            padding-bottom: 5px;
-        }
-
-        .moves-box {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .moves-box button {
-            background: #f8f8f8;
-            border: 4px solid #333;
-            border-radius: 10px;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 0.7rem;
-            cursor: pointer;
-            box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
-        }
-        .moves-box button:hover { background: #e0e0e0; }
-        .moves-box button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* Status Colors for moves */
-        .move-type { font-size: 0.5rem; margin-top: 5px; color: #666; display:block; }
-
-        @keyframes tackle-player { 0% { transform: translateX(0); } 50% { transform: translateX(50px) translateY(-20px); } 100% { transform: translateX(0); } }
-        @keyframes tackle-enemy { 0% { transform: translateX(0); } 50% { transform: translateX(-50px) translateY(20px); } 100% { transform: translateX(0); } }
-        @keyframes damage-blink { 0%, 40%, 80% { opacity: 1; } 20%, 60% { opacity: 0; } 100% { opacity: 1; } }
-
-        /* Weather Effects */
-        .weather-overlay {
-            position: absolute; top:0; left:0; right:0; bottom:0;
-            pointer-events: none;
-            z-index: 10;
-            opacity: 0.3;
-            transition: all 1s;
-        }
-        .weather-rain {
-            background: linear-gradient(to bottom, transparent, rgba(0, 100, 255, 0.4));
-            animation: rain 0.5s infinite linear;
-        }
-        .weather-sun {
-            background: radial-gradient(circle at top right, rgba(255, 200, 0, 0.5), transparent);
-            opacity: 0.5;
-        }
-        .weather-sandstorm {
-            background: rgba(194, 178, 128, 0.4);
-            animation: sandstorm 2s infinite linear;
-        }
-
-        @keyframes rain {
-            0% { background-position: 0 0; }
-            100% { background-position: -20px 100px; }
-        }
-        @keyframes sandstorm {
-            0% { background-position: 0 0; }
-            100% { background-position: 100px 0; }
-        }
-
-        /* Floating Damage Numbers */
-        @keyframes floatUp {
-            0%   { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-60px) scale(1.4); }
-        }
-        .float-dmg {
-            position: absolute;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 1rem;
-            font-weight: bold;
-            pointer-events: none;
-            animation: floatUp 1s ease forwards;
-            z-index: 50;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/pokemon-ui.css') }}">
 </head>
-<body>
-    <div class="container">
-        <a href="/" class="nav-link">⬅ Pokédex</a>
+<body class="page-battle">
+    <div class="container"><div class="arena-wrap">
+        <div class="arena-top">
+            <a href="/" class="back">← Pokédex</a>
+            <span class="brand"><span class="ball"></span>Battle Arena</span>
+        </div>
 
         <!-- Selection Screen -->
         <div id="selection-screen">
-            <h1 class="title">BATTLE ARENA</h1>
+            <h1 class="title">Battle Arena</h1>
             
             <div class="mode-select">
                 <select id="game-mode" onchange="updateMode()">
@@ -275,7 +31,7 @@
                 <div class="player-box">
                     <h3>Player 1</h3>
                     <img id="p1-img" class="preview-img" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png">
-                    <div id="p1-name" class="preview-name">Select Pokémon</div>
+                    <div id="p1-name" class="preview-name">Choose a Pokémon</div>
                     <input type="text" id="p1-input" placeholder="Name or ID">
                     <button class="btn-confirm" onclick="selectPokemon('p1')">Search</button>
                     <button class="btn-random" onclick="randomPokemon('p1')">Random</button>
@@ -285,14 +41,14 @@
                 <div class="player-box">
                     <h3 id="p2-title">CPU</h3>
                     <img id="p2-img" class="preview-img" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png">
-                    <div id="p2-name" class="preview-name">Select Pokémon</div>
+                    <div id="p2-name" class="preview-name">Choose a Pokémon</div>
                     <input type="text" id="p2-input" placeholder="Name or ID">
                     <button class="btn-confirm" onclick="selectPokemon('p2')">Search</button>
                     <button class="btn-random" onclick="randomPokemon('p2')">Random</button>
                 </div>
             </div>
 
-            <button id="start-btn" class="start-btn" onclick="startBattle()" disabled>START BATTLE</button>
+            <button id="start-btn" class="start-btn" onclick="startBattle()" disabled>Start battle</button>
         </div>
 
         <!-- Battle Arena -->
@@ -337,6 +93,7 @@
         </div>
     </div>
 
+    </div>
     <!-- Background Music -->
     <audio id="bgm" src="/music/battle.mp3" loop preload="auto"></audio>
 
@@ -430,11 +187,16 @@
             document.getElementById('p2-title').innerText = gameMode === 'cpu' ? 'CPU' : 'Player 2';
         }
 
+        const NAME_ALIASES = { nidoran: 'nidoran-f' };
         async function fetchPokeData(query) {
             try {
-                const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${query.toString().toLowerCase().trim()}`);
+                let q = query.toString().toLowerCase().trim();
+                q = NAME_ALIASES[q] || q.replace(/[.'’:]/g, '').replace(/\s+/g, '-');
+                if (!/^[a-z0-9-]+$/.test(q)) return null;
+                const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${encodeURIComponent(q)}`);
                 if (!res.ok) return null;
-                return await res.json();
+                const data = await res.json();
+                return data && data.sprites ? data : null;
             } catch (e) { return null; }
         }
 
@@ -473,40 +235,74 @@
         let p1MoveQueue = null;
         let p2MoveQueue = null;
         let currentWeather = 'none'; // none, rain, sun, sandstorm
+        let weatherTurns = 0;
+        let battleSession = 0; // invalidates stale timers after rematch/reset
 
-        // BUG FIX #3: Fetch moves in two passes — first try to get 20 from the end of the list
-        // (later moves tend to be learnable at higher levels = more powerful & representative)
-        // then fetch details in parallel for speed.
-        async function fetchMoves(movesList) {
-            setDialog('Loading moves data...');
-            // Sort by level learned descending to prefer stronger, signature moves
-            const sorted = [...movesList].sort((a, b) => {
-                const lvA = a.version_group_details?.[0]?.level_learned_at ?? 0;
-                const lvB = b.version_group_details?.[0]?.level_learned_at ?? 0;
-                return lvB - lvA;
-            }).slice(0, 30);
-
-            const details = await Promise.all(
-                sorted.map(m => fetch(m.move.url).then(r => r.json()).catch(() => null))
-            );
-
-            // Only keep moves that actually deal damage
-            const damaging = details.filter(m => m && m.power !== null && m.power > 0);
-
-            // If Pokémon has fewer than 4 damaging moves, fallback to Tackle
-            while (damaging.length < 4) {
-                damaging.push({ name: 'tackle', power: 40, type: { name: 'normal' }, damage_class: { name: 'physical' }, pp: 35 });
+        const moveCache = new Map();
+        // Moves whose "power" is null in the API but can still be modelled:
+        //   'level' = damage equals user level (50) | 'half' = half of target's current HP
+        //   number  = fixed damage                  | 'weight' = power depends on target weight
+        //   (no fixed key) = just needs an explicit power
+        const SPECIAL_MOVES = {
+            'seismic-toss': { fixed: 'level', est: 50 }, 'night-shade': { fixed: 'level', est: 50 },
+            'dragon-rage': { fixed: 40, est: 40 }, 'sonic-boom': { fixed: 20, est: 30 },
+            'super-fang': { fixed: 'half', est: 50 },
+            'low-kick': { fixed: 'weight', est: 60 }, 'grass-knot': { fixed: 'weight', est: 60 },
+            'return': { est: 102 }
+        };
+        const movePower = m => m.power > 0 ? m.power : ((SPECIAL_MOVES[m.name] || {}).est || 0);
+        function weightPower(hectograms) {
+            const kg = hectograms / 10;
+            return kg < 10 ? 20 : kg < 25 ? 40 : kg < 50 ? 60 : kg < 100 ? 80 : kg < 200 ? 100 : 120;
+        }
+        const POISON_CURE_CHANCE = 0.2; // chance per turn to shake off poison
+        const BANNED_MOVES = new Set(['explosion','self-destruct','misty-explosion','final-gambit','memento','healing-wish','lunar-dance','steel-beam','mind-blown','chloroblast']);
+        function fetchMoveDetail(url) {
+            if (!moveCache.has(url)) {
+                moveCache.set(url, fetch(url).then(r => r.json()).catch(() => { moveCache.delete(url); return null; }));
             }
+            return moveCache.get(url);
+        }
+        function spriteArt(d) {
+            return (d.sprites.other && d.sprites.other['official-artwork'].front_default) || d.sprites.front_default;
+        }
 
-            // Pick 4 with most power for variety
-            damaging.sort((a, b) => b.power - a.power);
-            return damaging.slice(0, 4).map(m => ({
-                name: m.name,
-                power: m.power,
-                type: m.type.name,
+        // Picks 4 distinct damaging moves: strongest level-up moves plus a random sample of TM/egg/tutor moves.
+        async function fetchMoves(movesList, types) {
+            setDialog('Loading moves data...');
+            const info = movesList.map(m => ({
+                url: m.move.url,
+                lvl: Math.max(0, ...m.version_group_details.map(v => v.level_learned_at)),
+                levelUp: m.version_group_details.some(v => v.move_learn_method.name === 'level-up')
+            }));
+            const byLevel = info.filter(i => i.levelUp).sort((a, b) => b.lvl - a.lvl).slice(0, 14);
+            const others = info.filter(i => !i.levelUp).sort(() => Math.random() - 0.5).slice(0, 10);
+            const details = (await Promise.all([...byLevel, ...others].map(i => fetchMoveDetail(i.url)))).filter(Boolean);
+
+            const seen = new Set();
+            const damaging = details.filter(m => movePower(m) > 0 && !BANNED_MOVES.has(m.name) && !seen.has(m.name) && seen.add(m.name));
+            const value = m => movePower(m) * (types.includes(m.type.name) ? 1.5 : 1) * ((m.accuracy ?? 100) / 100);
+            damaging.sort((a, b) => value(b) - value(a));
+            const picked = damaging.slice(0, 4);
+
+            // Distinct fallbacks (no more 4x Tackle)
+            const fallbacks = [
+                { name: 'tackle', power: 40, pp: 35 }, { name: 'pound', power: 40, pp: 35 },
+                { name: 'scratch', power: 40, pp: 35 }, { name: 'headbutt', power: 70, pp: 15 }
+            ];
+            for (const f of fallbacks) {
+                if (picked.length >= 4) break;
+                if (!picked.some(m => m.name === f.name)) {
+                    picked.push({ ...f, type: { name: 'normal' }, damage_class: { name: 'physical' }, accuracy: 100, priority: 0 });
+                }
+            }
+            return picked.map(m => ({
+                name: m.name, power: movePower(m), special: (SPECIAL_MOVES[m.name] || {}).fixed ?? null, type: m.type.name,
                 damageClass: m.damage_class ? m.damage_class.name : 'physical',
-                pp: m.pp || 10,
-                maxPp: m.pp || 10
+                accuracy: m.accuracy ?? null, priority: m.priority || 0,
+                ailment: (m.meta && m.meta.ailment && m.meta.ailment.name) || 'none',
+                ailmentChance: (m.meta && m.meta.ailment_chance) || 0,
+                pp: m.pp || 10, maxPp: m.pp || 10
             }));
         }
 
@@ -521,6 +317,8 @@
         }
 
         async function startBattle() {
+            const mySession = ++battleSession;
+            document.getElementById('moves-container').style.display = 'none';
             document.getElementById('selection-screen').style.display = 'none';
             document.getElementById('battle-arena').style.display = 'flex';
             battleOver = false;
@@ -529,10 +327,15 @@
             const p1S = calcStats(selectedP1.stats);
             const p2S = calcStats(selectedP2.stats);
 
+            const [p1Moves, p2Moves] = await Promise.all([
+                fetchMoves(selectedP1.moves, selectedP1.types.map(t => t.type.name)),
+                fetchMoves(selectedP2.moves, selectedP2.types.map(t => t.type.name))
+            ]);
+
             p1State = {
                 id: 'player', name: selectedP1.name.toUpperCase(), originalData: selectedP1,
                 hp: p1S.hp, maxHp: p1S.hp, attack: p1S.atk, defense: p1S.def, spAtk: p1S.spAtk, spDef: p1S.spDef, speed: p1S.spd,
-                moves: await fetchMoves(selectedP1.moves),
+                moves: p1Moves,
                 status: null, statusTurns: 0,
                 types: selectedP1.types.map(t => t.type.name)
             };
@@ -540,13 +343,13 @@
             p2State = {
                 id: 'enemy', name: selectedP2.name.toUpperCase(), originalData: selectedP2,
                 hp: p2S.hp, maxHp: p2S.hp, attack: p2S.atk, defense: p2S.def, spAtk: p2S.spAtk, spDef: p2S.spDef, speed: p2S.spd,
-                moves: await fetchMoves(selectedP2.moves),
+                moves: p2Moves,
                 status: null, statusTurns: 0,
                 types: selectedP2.types.map(t => t.type.name)
             };
 
             // Setup UI Sprites
-            const sp1 = selectedP1.sprites.back_default || selectedP1.sprites.front_default;
+            const sp1 = selectedP1.sprites.back_default || selectedP1.sprites.front_default || spriteArt(selectedP1);
             const playerSprite = document.getElementById('player-sprite');
             playerSprite.src = sp1;
             playerSprite.style.opacity = '1';
@@ -554,7 +357,7 @@
             else playerSprite.style.transform = 'none';
 
             const enemySprite = document.getElementById('enemy-sprite');
-            enemySprite.src = selectedP2.sprites.front_default;
+            enemySprite.src = selectedP2.sprites.front_default || spriteArt(selectedP2);
             enemySprite.style.opacity = '1';
 
             document.getElementById('player-name').innerText = p1State.name;
@@ -566,6 +369,7 @@
             // Weather System
             const weathers = ['none', 'rain', 'sun', 'sandstorm'];
             currentWeather = weathers[Math.floor(Math.random() * weathers.length)];
+            weatherTurns = currentWeather === 'none' ? 0 : 5;
             const weatherOverlay = document.getElementById('weather-overlay');
             weatherOverlay.className = 'weather-overlay'; // reset
             if (currentWeather !== 'none') {
@@ -599,6 +403,7 @@
             }, 800);
 
             await sleep(1500);
+            if (mySession !== battleSession) return;
             startTurn();
         }
 
@@ -653,7 +458,7 @@
                 setDialog(`${p1State.name} has no PP left! It must use Struggle!`);
                 setTimeout(() => {
                     if(gameMode === 'cpu') {
-                        p2MoveQueue = getCpuMove(p2State);
+                        p2MoveQueue = getCpuMove(p2State, p1State);
                         executeTurn();
                     } else {
                         promptPlayer2();
@@ -669,7 +474,7 @@
                 document.getElementById('moves-container').style.display = 'none';
                 if(gameMode === 'cpu') {
                     setTurnIndicator('🤖 CPU THINKING...');
-                    p2MoveQueue = getCpuMove(p2State);
+                    p2MoveQueue = getCpuMove(p2State, p1State);
                     executeTurn();
                 } else {
                     promptPlayer2();
@@ -702,22 +507,37 @@
         }
 
         // PP: CPU picks a random move that still has PP remaining
-        function getCpuMove(state) {
+        function getCpuMove(state, opp) {
             const available = state.moves.filter(m => m.pp > 0);
             if (available.length === 0) return getStruggle();
-            return available[Math.floor(Math.random() * available.length)];
+            if (Math.random() < 0.2) return available[Math.floor(Math.random() * available.length)]; // keep it unpredictable
+            const value = m => m.power * (state.types.includes(m.type) ? 1.5 : 1) * getTypeMultiplier(m.type, opp.types) * ((m.accuracy ?? 100) / 100);
+            return available.reduce((best, m) => value(m) > value(best) ? m : best);
         }
 
+        // 2-player mode: hide each player's moves until they tap "reveal" (no peeking on a shared screen)
         function renderMoves(playerState, callback) {
+            if (gameMode !== 'p2') return renderMoveButtons(playerState, callback);
+            const container = document.getElementById('moves-container');
+            container.innerHTML = '';
+            const b = document.createElement('button');
+            b.className = 'ready';
+            b.innerText = `${playerState.id === 'player' ? 'Player 1' : 'Player 2'}: tap to reveal moves`;
+            b.onclick = () => renderMoveButtons(playerState, callback);
+            container.appendChild(b);
+            container.style.display = 'grid';
+        }
+
+        function renderMoveButtons(playerState, callback) {
             const container = document.getElementById('moves-container');
             container.innerHTML = '';
             playerState.moves.forEach(move => {
                 const btn = document.createElement('button');
-                const ppColor = move.pp === 0 ? '#ef5350' : move.pp <= move.maxPp / 4 ? '#FACC15' : '#333';
+                const ppColor = move.pp === 0 ? '#ef4444' : move.pp <= move.maxPp / 4 ? '#f59e0b' : 'var(--text-2)';
                 const classBadge = move.damageClass === 'special' ? ' [Sp]' : ' [Ph]';
                 btn.innerHTML = `
-                    <span style="font-size:0.65rem">${move.name.replace(/-/g,' ').toUpperCase()}</span>
-                    <span class="move-type" style="color:${ppColor}">${move.type}${classBadge} | Pwr:${move.power} | PP:${move.pp}/${move.maxPp}</span>
+                    <span style="font-size:0.75rem">${move.name.replace(/-/g,' ').toUpperCase()}</span>
+                    <span class="move-type" style="color:${ppColor}">${move.type}${classBadge} | Pwr:${move.special ? '—' : move.power} | PP:${move.pp}/${move.maxPp}</span>
                 `;
                 // PP: Disable button if this move has no PP left
                 if (move.pp <= 0) {
@@ -820,17 +640,35 @@
             await animateAttack(attacker.id);
             await sleep(300);
 
+            if (move.accuracy !== null && move.accuracy !== undefined && Math.random() * 100 >= move.accuracy) {
+                setDialog(`${attacker.name}'s attack missed!`);
+                await sleep(1000);
+                return;
+            }
+
             // --- Physical vs Special Attack/Defense Stats + STAB bonus ---
             const atkStat = move.damageClass === 'special' ? attacker.spAtk : attacker.attack;
             const defStat = move.damageClass === 'special' ? defender.spDef : defender.defense;
             const stab = attacker.types.includes(move.type) ? 1.5 : 1;
             const multiplier = getTypeMultiplier(move.type, defender.types);
-            const dmg = calcDamage(move.power, atkStat, defStat, multiplier * stab, move.type);
+            const fixed = typeof move.special === 'number' || move.special === 'level' || move.special === 'half';
+            const crit = !fixed && multiplier > 0 && Math.random() < 1 / 16;
+            let dmg;
+            if (fixed) { // fixed-damage moves still respect type immunities
+                dmg = multiplier === 0 ? 0
+                    : move.special === 'level' ? 50
+                    : move.special === 'half' ? Math.max(1, Math.floor(defender.hp / 2))
+                    : move.special;
+            } else {
+                const power = move.special === 'weight' ? weightPower(defender.originalData.weight) : move.power;
+                dmg = calcDamage(power, atkStat, defStat, multiplier * stab * (crit ? 1.5 : 1), move.type);
+            }
             defender.hp = Math.max(0, defender.hp - dmg);
             showFloatingDamage(defender.id, dmg, multiplier);
             await animateDamage(defender.id);
             updateHPUI();
             await sleep(600);
+            if (crit) { setDialog('💥 A critical hit!'); await sleep(900); }
 
             // Show effectiveness message
             if (multiplier === 0) {
@@ -863,14 +701,14 @@
                 await sleep(1000);
             }
 
-            if(defender.hp > 0 && !defender.status) {
-                // Apply Status Effects conditionally based on move type
-                if(move.type === 'poison' && Math.random() < 0.3) {
+            if (defender.hp > 0 && !defender.status && move.ailment && move.ailment !== 'none') {
+                const chance = move.ailmentChance > 0 ? move.ailmentChance / 100 : 1;
+                if (move.ailment === 'poison' && !defender.types.some(t => t === 'poison' || t === 'steel') && Math.random() < chance) {
                     defender.status = 'poison';
                     setDialog(`${defender.name} was poisoned! 🟣`);
                     updateHPUI();
                     await sleep(1200);
-                } else if ((move.type === 'psychic' || move.type === 'ghost') && Math.random() < 0.3) {
+                } else if (move.ailment === 'confusion' && Math.random() < chance) {
                     defender.status = 'confusion';
                     defender.statusTurns = Math.floor(Math.random() * 4) + 2;
                     setDialog(`${defender.name} became confused! 💫`);
@@ -881,8 +719,9 @@
         }
 
         async function executeTurn() {
-            const p1First = p1State.speed > p2State.speed ||
-                            (p1State.speed === p2State.speed && Math.random() < 0.5);
+            const pr1 = p1MoveQueue.priority || 0, pr2 = p2MoveQueue.priority || 0;
+            const p1First = pr1 !== pr2 ? pr1 > pr2
+                : (p1State.speed > p2State.speed || (p1State.speed === p2State.speed && Math.random() < 0.5));
             
             const first  = p1First ? {atk: p1State, def: p2State, m: p1MoveQueue} : {atk: p2State, def: p1State, m: p2MoveQueue};
             const second = p1First ? {atk: p2State, def: p1State, m: p2MoveQueue} : {atk: p1State, def: p2State, m: p1MoveQueue};
@@ -906,6 +745,12 @@
                     updateHPUI();
                     await sleep(800);
                     if(checkFaint()) return;
+                    if (Math.random() < POISON_CURE_CHANCE) {
+                        p.status = null;
+                        setDialog(`${p.name} recovered from poison!`);
+                        updateHPUI();
+                        await sleep(800);
+                    }
                 }
             }
 
@@ -923,6 +768,14 @@
                         if(checkFaint()) return;
                     }
                 }
+            }
+
+            // Weather wears off after 5 turns
+            if (weatherTurns > 0 && --weatherTurns === 0) {
+                currentWeather = 'none';
+                document.getElementById('weather-overlay').className = 'weather-overlay';
+                setDialog('The weather returned to normal.');
+                await sleep(800);
             }
 
             startTurn();
@@ -1001,6 +854,8 @@
         }
 
         function rematch() {
+            const mySession = ++battleSession;
+            document.getElementById('moves-container').style.display = 'none';
             // Restore HP, PP, status
             p1State.hp = p1State.maxHp;
             p1State.status = null;
@@ -1022,6 +877,7 @@
             // BUG FIX #1 & #2: Re-roll weather AND restart BGM on Rematch
             const weathers = ['none', 'rain', 'sun', 'sandstorm'];
             currentWeather = weathers[Math.floor(Math.random() * weathers.length)];
+            weatherTurns = currentWeather === 'none' ? 0 : 5;
             const weatherOverlay = document.getElementById('weather-overlay');
             weatherOverlay.className = 'weather-overlay';
             if (currentWeather !== 'none') {
@@ -1045,10 +901,11 @@
                 a1.play().catch(e=>console.log(e));
             }
 
-            setTimeout(() => startTurn(), 1500);
+            setTimeout(() => { if (mySession === battleSession) startTurn(); }, 1500);
         }
 
         function resetToSelection() {
+            battleSession++;
             // Stop BGM
             const bgm = document.getElementById('bgm');
             bgm.pause();
